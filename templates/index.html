@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Plant Disease Detection</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>🌱 Plant Disease Detection</h1>
+
+    <form id="upload-form">
+        <input type="file" id="image-input" accept="image/*" required>
+        <button type="submit">Predict</button>
+    </form>
+
+    <div class="preview">
+        <img id="preview-image" />
+    </div>
+
+    <div id="result" class="result"></div>
+</div>
+
+<script>
+    const form = document.getElementById("upload-form");
+    const imageInput = document.getElementById("image-input");
+    const resultDiv = document.getElementById("result");
+    const previewImage = document.getElementById("preview-image");
+
+    imageInput.addEventListener("change", () => {
+        const file = imageInput.files[0];
+        if (file) {
+            previewImage.src = URL.createObjectURL(file);
+            previewImage.style.display = "block";
+        }
+    });
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        resultDiv.innerText = "Predicting...";
+
+        const formData = new FormData();
+        formData.append("file", imageInput.files[0]);
+
+        try {
+            const response = await fetch("http://127.0.0.1:8000/predict/", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+            resultDiv.innerHTML = `<strong>Prediction:</strong> ${data.class_label}`;
+        } catch (error) {
+            resultDiv.innerText = "Error occurred while predicting.";
+        }
+    });
+</script>
+
+</body>
+</html>
